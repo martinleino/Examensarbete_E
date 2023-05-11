@@ -1,0 +1,44 @@
+%% ODE system for PCA summary statistics
+% Martin Leino
+% May 2023
+%%
+clear
+close all
+%% Initial conditions and parameter values
+alpha = 1;                              % regularization parameter
+beta = 1;                               % signal-to-noise ratio
+c_delta = 1;
+init_1 = [0 1];                         % initial conditions
+init_2 = [-1 + 2*rand, -1 + 2*rand];    % try other initial conditions too
+init_3 = [-1 + 2*rand, -1 + 2*rand];
+init_4 = [-1 + 2*rand, -1 + 2*rand];
+k = 2;                                  % order of tensor
+n = 2000;
+t_span = [0 100];
+delta = c_delta/n;                      % step-size
+
+%% Run ODE for different initial conditions
+[times_1, m_r2_trajectory_1] = ode45(@(t, u)...
+    PCA_ODE_system(t, u, alpha, beta, k, c_delta), t_span, init_1);
+[times_2, m_r2_trajectory_2] = ode45(@(t, u)...
+    PCA_ODE_system(t, u, alpha, beta, k, c_delta), t_span, init_2);
+[times_3, m_r2_trajectory_3] = ode45(@(t, u)...
+    PCA_ODE_system(t, u, alpha, beta, k, c_delta), t_span, init_3);
+[times_4, m_r2_trajectory_4] = ode45(@(t, u)...
+    PCA_ODE_system(t, u, alpha, beta, k, c_delta), t_span, init_4);
+
+%% Plot results
+hold on
+plot(m_r2_trajectory_1(:,1), m_r2_trajectory_1(:,2), '*')
+plot(m_r2_trajectory_2(:,1), m_r2_trajectory_2(:,2), '*')
+plot(m_r2_trajectory_3(:,1), m_r2_trajectory_3(:,2), '*')
+plot(m_r2_trajectory_4(:,1), m_r2_trajectory_4(:,2), '*')
+xlabel('m', 'FontSize', 16);
+ylabel('r^2', 'FontSize', 16)
+
+function y = PCA_ODE_system(t, u, alpha, beta, k, c_delta)
+% Function giving the RHS of the ODE
+R2 = @(x, y) x^2 + y;
+y = [2 * u(1) * (beta * k * u(1)^(k-2) - k* R2(u(1), u(2))^(k-1) - alpha/2);
+    -(4 * u(2) - 4 * c_delta) * k * R2(u(1), u(2))^(k-1) - 2 * alpha * u(2)];
+end
