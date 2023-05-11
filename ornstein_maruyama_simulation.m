@@ -1,4 +1,5 @@
 %% Implementing the Euler-Maruyama method to simulate the Ornstein-Uhlenbeck process
+% (Code for Example 4)
 % Martin Leino
 % April 2023
 
